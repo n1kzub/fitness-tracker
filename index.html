@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fitness tracker</title>
-    <!-- Vite will handle Tailwind via src/main.js -->
     <script type="module" src="/src/main.js"></script>
   </head>
 
@@ -13,39 +12,49 @@
     <!-- ===== HEADER ===== -->
     <header class="w-full bg-white flex justify-between items-center px-10 py-4 border-b border-gray-200 shadow-sm flex-wrap">
       <h1 class="font-bold text-blue-500 tracking-wide text-2xl mb-2 sm:mb-0">RUNTRACK</h1>
-      <nav class="flex flex-wrap justify-center">
-        <a href="#" class="m-1 px-5 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md transition-all active:bg-blue-500 active:text-white">Home</a>
-        <a href="#" class="m-1 px-5 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md transition-all">Add Run</a>
-        <a href="#" class="m-1 px-5 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md transition-all">Statistics</a>
-        <a href="#" class="m-1 px-5 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md transition-all">History</a>
-        <a href="#" class="m-1 px-5 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md transition-all">Profile</a>
+
+      <!-- CHANGED: added id="topNav" + data-route on links -->
+      <nav class="flex flex-wrap justify-center" id="topNav">
+        <a href="#" data-route="home" class="m-1 px-5 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md transition-all active:bg-blue-500 active:text-white">Home</a>
+        <a href="#" data-route="add-run" class="m-1 px-5 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md transition-all">Add Run</a>
+        <a href="#" data-route="statistics" class="m-1 px-5 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md transition-all">Statistics</a>
+        <a href="#" data-route="history" class="m-1 px-5 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md transition-all">History</a>
+        <a href="#" data-route="profile" class="m-1 px-5 py-2 text-gray-700 font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-md transition-all">Profile</a>
       </nav>
     </header>
 
     <!-- ===== MAIN DASHBOARD ===== -->
-    <main class="w-full max-w-[1100px] my-10 px-8">
+    <!-- CHANGED: added id="appMain" -->
+    <main id="appMain" class="w-full max-w-[1100px] my-10 px-8">
 
       <!-- TITLE -->
       <h2 class="text-3xl font-semibold mb-8">Dashboard</h2>
 
       <!-- STAT CARDS -->
-      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+      <!-- CHANGED: grid to lg:grid-cols-4 + IDs + 4th card -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <div class="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
           <p class="text-gray-500 text-sm">Total Distance</p>
-          <h3 class="text-4xl font-semibold text-blue-500 my-2">24.2 <span class="text-lg">km</span></h3>
+          <h3 id="statTotalDistance" class="text-4xl font-semibold text-blue-500 my-2">0.0 <span class="text-lg">km</span></h3>
           <p class="text-gray-600 text-sm">This Week</p>
         </div>
 
         <div class="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
           <p class="text-gray-500 text-sm">Avg. Session Time</p>
-          <h3 class="text-4xl font-semibold text-blue-500 my-2">35:24</h3>
+          <h3 id="statAvgTime" class="text-4xl font-semibold text-blue-500 my-2">0:00</h3>
           <p class="text-gray-600 text-sm">This Week</p>
         </div>
 
         <div class="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
           <p class="text-gray-500 text-sm">Total Runs</p>
-          <h3 class="text-4xl font-semibold text-blue-500 my-2">8</h3>
+          <h3 id="statTotalRuns" class="text-4xl font-semibold text-blue-500 my-2">0</h3>
           <p class="text-gray-600 text-sm">This Month</p>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+          <p class="text-gray-500 text-sm">Latest Run</p>
+          <h3 id="statLatestRunPrimary" class="text-xl font-semibold text-blue-500 my-2">—</h3>
+          <p id="statLatestRunSecondary" class="text-gray-600 text-sm">Add a run to see details</p>
         </div>
       </section>
 
@@ -68,8 +77,9 @@
         <div class="flex items-center bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow max-w-100vw">
           <span class="text-4xl text-blue-500 mr-5">🏆</span>
           <div>
-            <p class="font-medium text-gray-700">Best Run This Month</p>
-            <p class="text-blue-500 font-semibold text-lg">10.5 km</p>
+            <!-- CHANGED: added IDs for JS update -->
+            <p id="highlightLabel" class="font-medium text-gray-700">Best Run This Month</p>
+            <p id="highlightValue" class="text-blue-500 font-semibold text-lg">—</p>
           </div>
         </div>
       </section>

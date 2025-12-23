@@ -1,24 +1,59 @@
-import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+import './style.css';
+import { initNav } from './ui/nav.js';
+import { renderAddRunPage } from './ui/addRunPage.js';
+import { refreshDashboardStats } from './ui/dashboard.js';
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+let main = null;
+let homeHTML = '';
 
-setupCounter(document.querySelector('#counter'))
+function getMain() {
+  if (!main) main = document.querySelector('#appMain');
+  return main;
+}
+
+function setHomeSnapshot() {
+  const m = getMain();
+  if (!m) return;
+  if (!homeHTML) homeHTML = m.innerHTML;
+}
+
+function navigate(route) {
+  const m = getMain();
+  if (!m) {
+    console.warn('Missing #appMain. Add id="appMain" to your <main>.');
+    return;
+  }
+
+  setHomeSnapshot();
+
+  if (route === 'add-run') {
+    m.innerHTML = '';
+    m.appendChild(
+      renderAddRunPage({
+        onSaved: () => {
+          navigate('home');
+          refreshDashboardStats();
+        },
+      })
+    );
+    return;
+  }
+
+  // default: home
+  m.innerHTML = homeHTML;
+  refreshDashboardStats();
+}
+
+function boot() {
+  setHomeSnapshot();
+
+  initNav({ onRoute: navigate });
+
+  navigate('home');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
