@@ -2,6 +2,7 @@ import './style.css';
 import { initNav } from './ui/nav.js';
 import { renderAddRunPage } from './ui/addRunPage.js';
 import { refreshDashboardStats } from './ui/dashboard.js';
+import { renderStatisticsPage } from './ui/statisticsPage.js';
 
 let main = null;
 let homeHTML = '';
@@ -39,6 +40,12 @@ function navigate(route) {
     return;
   }
 
+  if (route === 'statistics') {
+    m.innerHTML = '';
+    m.appendChild(renderStatisticsPage());
+    return;
+  }
+
   // default: home
   m.innerHTML = homeHTML;
   refreshDashboardStats();
@@ -46,9 +53,7 @@ function navigate(route) {
 
 function boot() {
   setHomeSnapshot();
-
   initNav({ onRoute: navigate });
-
   navigate('home');
 }
 

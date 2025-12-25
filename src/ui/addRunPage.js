@@ -48,6 +48,10 @@ function buildConfirmModal({ title, bodyHtml, onConfirm, onCancel }) {
   return overlay;
 }
 
+const EFFORT_OPTIONS = ['Easy', 'Moderate', 'Hard'];
+const WORKOUT_STYLE_OPTIONS = ['Recovery', 'Easy', 'Steady', 'Tempo', 'Interval', 'Race'];
+const SURFACE_OPTIONS = ['Road', 'Trail', 'Treadmill', 'Track', 'Mixed'];
+
 export function renderAddRunPage({ onSaved } = {}) {
   const wrapper = document.createElement('section');
   wrapper.className = 'bg-white rounded-xl p-7 shadow-sm';
@@ -72,7 +76,7 @@ export function renderAddRunPage({ onSaved } = {}) {
           <option value="km" ${currentUnit === 'km' ? 'selected' : ''}>Kilometers (km)</option>
           <option value="mi" ${currentUnit === 'mi' ? 'selected' : ''}>Miles (mi)</option>
         </select>
-        <p class="text-xs text-gray-500">This sets your global display unit (Profile later).</p>
+        <p class="text-xs text-gray-500">Global display unit (Profile later).</p>
       </div>
 
       <div class="flex flex-col gap-2">
@@ -86,6 +90,33 @@ export function renderAddRunPage({ onSaved } = {}) {
         <label class="text-sm text-gray-600 font-medium">Duration (mm:ss)</label>
         <input name="duration" type="text" placeholder="e.g. 35:24"
           class="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-200" />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm text-gray-600 font-medium">Effort</label>
+        <select name="effort"
+          class="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-200">
+          <option value="">Select effort…</option>
+          ${EFFORT_OPTIONS.map(o => `<option value="${o}">${o}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm text-gray-600 font-medium">Workout Style</label>
+        <select name="workoutStyle"
+          class="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-200">
+          <option value="">Select style…</option>
+          ${WORKOUT_STYLE_OPTIONS.map(o => `<option value="${o}">${o}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-2 md:col-span-2">
+        <label class="text-sm text-gray-600 font-medium">Surface</label>
+        <select name="surface"
+          class="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-200">
+          <option value="">Select surface…</option>
+          ${SURFACE_OPTIONS.map(o => `<option value="${o}">${o}</option>`).join('')}
+        </select>
       </div>
 
       <div class="flex flex-col gap-2 md:col-span-2">
@@ -128,15 +159,22 @@ export function renderAddRunPage({ onSaved } = {}) {
     const durationRaw = String(fd.get('duration') || '').trim();
     const notes = String(fd.get('notes') || '').trim();
 
+    const effort = String(fd.get('effort') || '').trim();
+    const workoutStyle = String(fd.get('workoutStyle') || '').trim();
+    const surface = String(fd.get('surface') || '').trim();
+
     if (!date) return showError('Please choose a date.');
     if (!Number.isFinite(distance) || distance <= 0) return showError('Distance must be greater than 0.');
     const durationSec = parseMmSsToSeconds(durationRaw);
     if (durationSec == null || durationSec <= 0) return showError('Duration format must be mm:ss (e.g., 35:24).');
 
-    // Set global unit (Profile later)
+    if (!EFFORT_OPTIONS.includes(effort)) return showError('Please select an effort.');
+    if (!WORKOUT_STYLE_OPTIONS.includes(workoutStyle)) return showError('Please select a workout style.');
+    if (!SURFACE_OPTIONS.includes(surface)) return showError('Please select a surface.');
+
+    // Save global unit (Profile later)
     setUnit(unit);
 
-    // Compute pace in the *selected unit*
     const paceSecPerUnit = paceSeconds(durationSec, distance);
 
     const summaryHtml = `
@@ -157,6 +195,18 @@ export function renderAddRunPage({ onSaved } = {}) {
           <span class="text-gray-500">Avg Pace</span>
           <span class="font-medium text-gray-800">${formatPaceMmSs(paceSecPerUnit)} min/${unit}</span>
         </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-500">Effort</span>
+          <span class="font-medium text-gray-800">${effort}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-500">Workout Style</span>
+          <span class="font-medium text-gray-800">${workoutStyle}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-500">Surface</span>
+          <span class="font-medium text-gray-800">${surface}</span>
+        </div>
         ${notes ? `
           <div class="text-sm">
             <div class="text-gray-500 mb-1">Notes</div>
@@ -176,11 +226,17 @@ export function renderAddRunPage({ onSaved } = {}) {
 
         const run = {
           id: crypto.randomUUID(),
-          date, // YYYY-MM-DD
-          distance: { value: Number(distance.toFixed(2)), unit }, // stores “distance” (with unit)
-          durationSec, // stores “duration”
-          notes, // stores “notes”
-          map_data: {}, // placeholder (Option A)
+          date,
+          distance: { value: Number(distance.toFixed(2)), unit },
+          durationSec,
+          notes,
+          map_data: {},
+
+          // New fields (required)
+          effort,
+          workoutStyle,
+          surface,
+
           createdAt: new Date().toISOString(),
         };
 
@@ -195,7 +251,6 @@ export function renderAddRunPage({ onSaved } = {}) {
   return wrapper;
 }
 
-// Export helpers used elsewhere
 export function distanceInUnit(distanceObj, targetUnit) {
   return toUnitDistance(distanceObj, targetUnit);
 }
