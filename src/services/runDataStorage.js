@@ -36,3 +36,10 @@ export function setUnit(unit) {
   settings.unit = unit === 'mi' ? 'mi' : 'km';
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 }
+
+export function deleteRun(runId) {
+  const runs = getRuns();
+  const next = runs.filter(r => r.id !== runId);
+  localStorage.setItem(RUNS_KEY, JSON.stringify(next));
+  return next.length !== runs.length; // true if something was deleted
+}

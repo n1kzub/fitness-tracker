@@ -1,56 +1,12 @@
 import { addRun, getUnit, setUnit } from '../services/runDataStorage.js';
 import { parseMmSsToSeconds, formatSecondsToMmSs, formatPaceMmSs } from '../utils/timeFormat.js';
-
-const KM_PER_MI = 1.609344;
-
-function toUnitDistance({ value, unit }, targetUnit) {
-  if (unit === targetUnit) return value;
-  return targetUnit === 'mi' ? value / KM_PER_MI : value * KM_PER_MI;
-}
-
-function paceSeconds(durationSec, distanceValue) {
-  if (distanceValue <= 0) return null;
-  return Math.round(durationSec / distanceValue);
-}
-
-function buildConfirmModal({ title, bodyHtml, onConfirm, onCancel }) {
-  const overlay = document.createElement('div');
-  overlay.className = 'fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50';
-
-  overlay.innerHTML = `
-    <div class="w-full max-w-lg bg-white rounded-xl shadow-lg overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-800">${title}</h3>
-      </div>
-      <div class="px-6 py-5 text-gray-700">
-        ${bodyHtml}
-      </div>
-      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-        <button type="button" data-action="cancel"
-          class="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
-          Cancel
-        </button>
-        <button type="button" data-action="confirm"
-          class="px-5 py-2 rounded-lg bg-blue-500 text-white border border-blue-500 hover:shadow-md transition">
-          Confirm & Save
-        </button>
-      </div>
-    </div>
-  `;
-
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) onCancel?.();
-  });
-
-  overlay.querySelector('[data-action="cancel"]').addEventListener('click', () => onCancel?.());
-  overlay.querySelector('[data-action="confirm"]').addEventListener('click', () => onConfirm?.());
-
-  return overlay;
-}
-
-const EFFORT_OPTIONS = ['Easy', 'Moderate', 'Hard'];
-const WORKOUT_STYLE_OPTIONS = ['Recovery', 'Easy', 'Steady', 'Tempo', 'Interval', 'Race'];
-const SURFACE_OPTIONS = ['Road', 'Trail', 'Treadmill', 'Track', 'Mixed'];
+import { buildConfirmModal } from './components/confirmModal.js';
+import {
+  EFFORT_OPTIONS,
+  WORKOUT_STYLE_OPTIONS,
+  SURFACE_OPTIONS,
+} from '../utils/runMeta.js';
+import { paceSecPerUnit as paceSecPerUnitFn } from '../utils/runMath.js';
 
 export function renderAddRunPage({ onSaved } = {}) {
   const wrapper = document.createElement('section');
@@ -142,6 +98,7 @@ export function renderAddRunPage({ onSaved } = {}) {
     errorEl.textContent = msg;
     errorEl.classList.remove('hidden');
   }
+
   function hideError() {
     errorEl.textContent = '';
     errorEl.classList.add('hidden');
@@ -175,7 +132,11 @@ export function renderAddRunPage({ onSaved } = {}) {
     // Save global unit (Profile later)
     setUnit(unit);
 
-    const paceSecPerUnit = paceSeconds(durationSec, distance);
+    const paceSecPerUnitValue = paceSecPerUnitFn(durationSec, distance);
+
+    const safeNotes = notes
+      ? notes.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      : '';
 
     const summaryHtml = `
       <div class="space-y-3">
@@ -193,7 +154,7 @@ export function renderAddRunPage({ onSaved } = {}) {
         </div>
         <div class="flex justify-between text-sm">
           <span class="text-gray-500">Avg Pace</span>
-          <span class="font-medium text-gray-800">${formatPaceMmSs(paceSecPerUnit)} min/${unit}</span>
+          <span class="font-medium text-gray-800">${formatPaceMmSs(paceSecPerUnitValue)} min/${unit}</span>
         </div>
         <div class="flex justify-between text-sm">
           <span class="text-gray-500">Effort</span>
@@ -207,12 +168,14 @@ export function renderAddRunPage({ onSaved } = {}) {
           <span class="text-gray-500">Surface</span>
           <span class="font-medium text-gray-800">${surface}</span>
         </div>
-        ${notes ? `
+
+        ${safeNotes ? `
           <div class="text-sm">
             <div class="text-gray-500 mb-1">Notes</div>
-            <div class="text-gray-800">${notes.replaceAll('<','&lt;').replaceAll('>','&gt;')}</div>
+            <div class="text-gray-800">${safeNotes}</div>
           </div>
         ` : ''}
+
         <p class="text-xs text-gray-500 pt-2">You won’t be able to edit this run later.</p>
       </div>
     `;
@@ -220,6 +183,7 @@ export function renderAddRunPage({ onSaved } = {}) {
     const modal = buildConfirmModal({
       title: 'Confirm your run',
       bodyHtml: summaryHtml,
+      confirmText: 'Confirm & Save',
       onCancel: () => modal.remove(),
       onConfirm: () => {
         modal.remove();
@@ -232,7 +196,6 @@ export function renderAddRunPage({ onSaved } = {}) {
           notes,
           map_data: {},
 
-          // New fields (required)
           effort,
           workoutStyle,
           surface,
@@ -242,15 +205,11 @@ export function renderAddRunPage({ onSaved } = {}) {
 
         addRun(run);
         onSaved?.(run);
-      }
+      },
     });
 
     document.body.appendChild(modal);
   });
 
   return wrapper;
-}
-
-export function distanceInUnit(distanceObj, targetUnit) {
-  return toUnitDistance(distanceObj, targetUnit);
 }

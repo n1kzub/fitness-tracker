@@ -3,6 +3,7 @@ import { initNav } from './ui/nav.js';
 import { renderAddRunPage } from './ui/addRunPage.js';
 import { refreshDashboardStats } from './ui/dashboard.js';
 import { renderStatisticsPage } from './ui/statisticsPage.js';
+import { renderHistoryPage } from './ui/historyPage.js';
 
 let main = null;
 let homeHTML = '';
@@ -46,6 +47,12 @@ function navigate(route) {
     return;
   }
 
+  if (route === 'history') {
+    m.innerHTML = '';
+    m.appendChild(renderHistoryPage());
+    return;
+  }
+
   // default: home
   m.innerHTML = homeHTML;
   refreshDashboardStats();
@@ -62,3 +69,4 @@ if (document.readyState === 'loading') {
 } else {
   boot();
 }
+
