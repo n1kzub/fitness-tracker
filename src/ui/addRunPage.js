@@ -16,7 +16,7 @@ export function renderAddRunPage({ onSaved } = {}) {
   const currentUnit = getUnit(); // 'km' | 'mi'
 
   wrapper.innerHTML = `
-    <h2 class="text-3xl font-semibold mb-6">Add Run</h2>
+    <h2 class="text-3xl font-semibold mb-6 text-gray-900">Add Run</h2>
 
     <form id="addRunForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
       <div class="flex flex-col gap-2">

@@ -4,69 +4,54 @@ import { renderAddRunPage } from './ui/addRunPage.js';
 import { refreshDashboardStats } from './ui/dashboard.js';
 import { renderStatisticsPage } from './ui/statisticsPage.js';
 import { renderHistoryPage } from './ui/historyPage.js';
+import { renderProfilePage } from './ui/profilePage.js';
+import { applyTheme, watchSystemThemeChanges } from './services/userProfileStorage.js';
 
-let main = null;
-let homeHTML = '';
+const main = document.querySelector('#appMain');
+if (!main) console.warn('Missing #appMain. Add id="appMain" to your <main>.');
 
-function getMain() {
-  if (!main) main = document.querySelector('#appMain');
-  return main;
-}
+const homeHTML = main ? main.innerHTML : '';
 
-function setHomeSnapshot() {
-  const m = getMain();
-  if (!m) return;
-  if (!homeHTML) homeHTML = m.innerHTML;
-}
+// Apply saved theme on startup and keep in sync if "system"
+applyTheme();
+watchSystemThemeChanges();
 
 function navigate(route) {
-  const m = getMain();
-  if (!m) {
-    console.warn('Missing #appMain. Add id="appMain" to your <main>.');
-    return;
-  }
-
-  setHomeSnapshot();
+  if (!main) return;
 
   if (route === 'add-run') {
-    m.innerHTML = '';
-    m.appendChild(
-      renderAddRunPage({
-        onSaved: () => {
-          navigate('home');
-          refreshDashboardStats();
-        },
-      })
-    );
+    main.innerHTML = '';
+    main.appendChild(renderAddRunPage({
+      onSaved: () => {
+        navigate('home');
+        refreshDashboardStats();
+      },
+    }));
     return;
   }
 
   if (route === 'statistics') {
-    m.innerHTML = '';
-    m.appendChild(renderStatisticsPage());
+    main.innerHTML = '';
+    main.appendChild(renderStatisticsPage());
     return;
   }
 
   if (route === 'history') {
-    m.innerHTML = '';
-    m.appendChild(renderHistoryPage());
+    main.innerHTML = '';
+    main.appendChild(renderHistoryPage());
     return;
   }
 
-  // default: home
-  m.innerHTML = homeHTML;
+  if (route === 'profile') {
+    main.innerHTML = '';
+    main.appendChild(renderProfilePage());
+    return;
+  }
+
+  // home (default)
+  main.innerHTML = homeHTML;
   refreshDashboardStats();
 }
 
-function boot() {
-  setHomeSnapshot();
-  initNav({ onRoute: navigate });
-  navigate('home');
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', boot);
-} else {
-  boot();
-}
-
+initNav({ onRoute: navigate });
+navigate('home');

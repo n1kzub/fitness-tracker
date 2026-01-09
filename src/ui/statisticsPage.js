@@ -178,7 +178,7 @@ export function renderStatisticsPage() {
     </section>
 
     <section class="bg-white rounded-xl p-7 shadow-sm">
-      <h3 class="text-2xl font-semibold mb-4">Personal Bests</h3>
+      <h3 class="text-2xl font-semibold mb-4 text-gray-900">Personal Bests</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="border border-gray-200 rounded-lg p-4">
           <p class="text-gray-500 text-sm">Longest Run</p>
@@ -195,7 +195,7 @@ export function renderStatisticsPage() {
     <section class="bg-white rounded-xl p-7 shadow-sm">
       <div class="flex items-end justify-between gap-3 mb-4">
         <div>
-          <h3 class="text-2xl font-semibold">Trends</h3>
+          <h3 class="text-2xl font-semibold text-gray-900">Trends</h3>
           <p id="chartSubtitle" class="text-sm text-gray-500 mt-1">—</p>
         </div>
         <div class="flex gap-2">
@@ -212,7 +212,7 @@ export function renderStatisticsPage() {
     </section>
 
     <section class="bg-white rounded-xl p-7 shadow-sm">
-      <h3 class="text-2xl font-semibold">AI Insights (coming soon)</h3>
+      <h3 class="text-2xl font-semibold text-gray-900">AI Insights (coming soon)</h3>
       <p id="aiSubtitle" class="text-sm text-gray-500 mt-2">—</p>
       <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="h-[90px] bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 text-sm">Training load</div>

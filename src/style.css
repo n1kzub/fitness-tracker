@@ -1,1 +1,42 @@
 @import "tailwindcss";
+
+/* LIGHT theme: inputs should have dark text */
+:root[data-effective-theme="light"] input,
+:root[data-effective-theme="light"] select,
+:root[data-effective-theme="light"] textarea {
+  color: #000000 !important;            /* gray-900 */
+  background-color: #ffffff !important;
+}
+
+/* Placeholder should stay lighter but readable */
+:root[data-effective-theme="light"] input::placeholder,
+:root[data-effective-theme="light"] textarea::placeholder {
+  color: #9ca3af !important;            /* gray-400 */
+}
+:root[data-effective-theme="light"] select option {
+  color: #000000;
+}
+
+/* DARK theme */
+:root[data-effective-theme="dark"] input,
+:root[data-effective-theme="dark"] select,
+:root[data-effective-theme="dark"] textarea {
+  color: #000000 !important;           
+  border-color: #334155 !important;
+}
+
+:root[data-effective-theme="dark"] input::placeholder,
+:root[data-effective-theme="dark"] textarea::placeholder {
+  color: #94a3b8 !important;            /* slate-400 */
+}
+
+:root[data-effective-theme="dark"] select option {
+  color: #000000;                        
+}
+
+/* Make native controls match theme (calendar/number spinners/etc.) */
+:root[data-effective-theme="dark"] input,
+:root[data-effective-theme="dark"] select,
+:root[data-effective-theme="dark"] textarea {
+  color-scheme: dark;
+}
